@@ -1,6 +1,6 @@
-import { loadEnv, defineConfig } from '@medusajs/framework/utils'
+import { loadEnv, defineConfig } from "@medusajs/framework/utils";
 
-loadEnv(process.env.NODE_ENV || 'development', process.cwd())
+loadEnv(process.env.NODE_ENV || "development", process.cwd());
 
 module.exports = defineConfig({
   projectConfig: {
@@ -11,6 +11,38 @@ module.exports = defineConfig({
       authCors: process.env.AUTH_CORS!,
       jwtSecret: process.env.JWT_SECRET || "supersecret",
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
-    }
-  }
-})
+    },
+  },
+  modules: [
+    {
+      resolve: "@medusajs/payment",
+
+      options: {
+        providers: [
+          // {
+          //   resolve: "@medusajs/payment-stripe",
+          //
+          //   id: "stripe",
+          //
+          //   options: {
+          //     apiKey: process.env.STRIPE_API_KEY,
+          //
+          //     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+          //   },
+          // },
+          {
+            resolve: "medusa-paypal-plugin/modules/paypal",
+            id: "paypal",
+            options: {
+              client_id: process.env.PAYPAL_CLIENT_ID!,
+              client_secret: process.env.PAYPAL_CLIENT_SECRET!,
+              environment: process.env.PAYPAL_ENVIRONMENT || "sandbox",
+              autoCapture: process.env.PAYPAL_AUTO_CAPTURE === "true",
+              webhook_id: process.env.PAYPAL_WEBHOOK_ID,
+            },
+          },
+        ],
+      },
+    },
+  ],
+});
