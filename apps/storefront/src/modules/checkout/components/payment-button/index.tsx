@@ -1,12 +1,13 @@
 "use client"
 
-import { isManual, isStripeLike } from "@lib/constants"
+import { isManual, isPaypal, isStripeLike } from "@lib/constants"
 import { placeOrder } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@modules/common/components/ui"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
+import PayPalPaymentButton from "@modules/checkout/components/payment-button/paypal-payment-button"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -34,6 +35,10 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           cart={cart}
           data-testid={dataTestId}
         />
+      )
+    case isPaypal(paymentSession?.provider_id):
+      return (
+        <PayPalPaymentButton cart={cart} notReady={notReady} data-testid={dataTestId}/>
       )
     case isManual(paymentSession?.provider_id):
       return (

@@ -1,6 +1,6 @@
 "use client"
 import { RadioGroup } from "@headlessui/react"
-import { isStripeLike, paymentInfoMap } from "@lib/constants"
+import { isPaypal, isStripeLike, paymentInfoMap } from "@lib/constants"
 import { initiatePaymentSession } from "@lib/data/cart"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
 import ErrorMessage from "@modules/checkout/components/error-message"
@@ -47,7 +47,7 @@ const Payment = ({
   const setPaymentMethod = async (method: string) => {
     setError(null)
     setSelectedPaymentMethod(method)
-    if (isStripeLike(method)) {
+    if (isStripeLike(method) || isPaypal(method)) {
       await initiatePaymentSession(cart, {
         provider_id: method,
       })
@@ -92,7 +92,8 @@ const Payment = ({
         })
       }
 
-      if (!shouldInputCard) {
+      // For PayPal, we don't need to input card details, so go to review
+      if (!shouldInputCard || isPaypal(selectedPaymentMethod)) {
         return router.push(
           pathname + "?" + createQueryString("step", "review"),
           {
@@ -100,8 +101,8 @@ const Payment = ({
           }
         )
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
+    } catch (err: any) {
+      setError(err.message)
     } finally {
       setIsLoading(false)
     }

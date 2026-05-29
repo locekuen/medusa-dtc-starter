@@ -4,7 +4,8 @@ import { loadStripe } from "@stripe/stripe-js"
 import React from "react"
 import StripeWrapper from "./stripe-wrapper"
 import { HttpTypes } from "@medusajs/types"
-import { isStripeLike } from "@lib/constants"
+import { isPaypal, isStripeLike } from "@lib/constants"
+import PayPalWrapper from "@modules/checkout/components/payment-wrapper/paypal-wrapper"
 
 type PaymentWrapperProps = {
   cart: HttpTypes.StoreCart
@@ -27,6 +28,13 @@ const PaymentWrapper: React.FC<PaymentWrapperProps> = ({ cart, children }) => {
   const paymentSession = cart.payment_collection?.payment_sessions?.find(
     (s) => s.status === "pending"
   )
+
+  //loceken
+  if (isPaypal(paymentSession?.provider_id) && paymentSession) {
+    return (
+      <PayPalWrapper paymentSession={paymentSession}>{children}</PayPalWrapper>
+    )
+  }
 
   if (
     isStripeLike(paymentSession?.provider_id) &&
